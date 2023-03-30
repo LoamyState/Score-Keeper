@@ -9,7 +9,7 @@ import UIKit
 
 class AddEditPlayerTableViewController: UITableViewController {
     
-    var player = Player(color: .blue, name: "", score: 0) {
+    var player: Player {
         didSet {
             print("Player struct updated!")
         }
@@ -21,14 +21,13 @@ class AddEditPlayerTableViewController: UITableViewController {
     @IBOutlet weak var playerScoreStepper: UIStepper!
     @IBOutlet weak var saveButton: UIBarButtonItem!
     
-    init?(coder: NSCoder, player: Player? = nil) {
+    init?(coder: NSCoder, player: Player) {
+        self.player = player
         super.init(coder: coder)
-        if let player {
-            self.player = player
-        }
     }
     
     required init?(coder: NSCoder) {
+        self.player = Player(color: .blue, name: "", score: 0)
         super.init(coder: coder)
     }
     
@@ -46,10 +45,6 @@ class AddEditPlayerTableViewController: UITableViewController {
         playerColorWell.selectedColor = player.color
         playerScoreTextField.text = "\(player.score)"
         playerScoreStepper.value = Double(player.score)
-        print("playerNameTextField.text == \(playerNameTextField.text)")
-        print("playerColorWell.selectedColor ==\(playerColorWell.selectedColor)")
-        print("playerScoreTextField.text == \(playerScoreTextField.text)")
-        print("playerScoreStepper.value == \(playerScoreStepper.value)")
         updateSaveButtonState()
     }
     

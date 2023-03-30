@@ -48,28 +48,4 @@ extension Player: Codable {
     }
 }
 
-struct Scoreboard: Codable {
-    var players: [Player]
-    
-    static let archiveURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent("scoreboard").appendingPathExtension(".plist")
-    
-    static func saveToFile(scoreboard: Scoreboard) {
-        let propertyListEncoder = PropertyListEncoder()
-        let encodedScoreboard = try? propertyListEncoder.encode(scoreboard)
-            
-        do {
-            try encodedScoreboard?.write(to: Scoreboard.archiveURL, options: .noFileProtection)
-        } catch {
-            print(error)
-        }
-    }
-    
-    static func loadFromFile() -> Scoreboard? {
-        guard let retrievedScoreboardData = try? Data(contentsOf: Scoreboard.archiveURL) else { return nil }
-        
-        let propertyListDecoder = PropertyListDecoder()
-        guard let decodedScoreboard = try? propertyListDecoder.decode(Scoreboard.self, from: retrievedScoreboardData) else { return nil }
-        
-        return decodedScoreboard
-    }
-}
+
