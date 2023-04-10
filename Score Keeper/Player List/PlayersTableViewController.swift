@@ -7,24 +7,27 @@
 
 import UIKit
 
-class GameTableViewController: UITableViewController, PlayerTableViewCellDelegate {
+protocol PlayersTableViewControllerDelegate {
+    func updateGamesList(game: Game)
+}
+
+class PlayersTableViewController: UITableViewController, PlayerTableViewCellDelegate {
     
+    var delegate: PlayersTableViewControllerDelegate
     var game: Game {
         didSet {
-            game.players.sort()
-            Game.saveToFile(game: game)
-            print("Updated game, saving to file")
+            delegate.updateGamesList(game: game)
         }
     }
     
-    init?(game: Game, coder: NSCoder) {
+    init?(game: Game, delegate: PlayersTableViewControllerDelegate, coder: NSCoder) {
         self.game = game
+        self.delegate = delegate
         super.init(coder: coder)
     }
 
     required init?(coder: NSCoder) {
-        self.game = Game(title: "", sort: .forward, winnerSort: .forward, players: [])
-        super.init(coder: coder)
+        fatalError("Initializer not implemented!")
     }
     
     override func viewDidLoad() {
@@ -60,18 +63,7 @@ class GameTableViewController: UITableViewController, PlayerTableViewCellDelegat
         
         return cell
     }
-    
-//    @IBSegueAction func addPlayer(_ coder: NSCoder, sender: Any?) -> AddEditPlayerTableViewController? {
-//        return AddEditPlayerTableViewController(coder: coder)
-//    }
-//
-//    @IBSegueAction func editPlayer(_ coder: NSCoder, sender: Any?) -> AddEditPlayerTableViewController? {
-//        guard let sender = sender as? PlayerTableViewCell, let player = sender.player else { return nil }
-//
-//        print("Editing player \(player.name)")
-//        return AddEditPlayerTableViewController(coder: coder, player: player)
-//    }
-    
+ 
     func updatePlayerValue(player: Player?, indexPath: IndexPath?) {
         guard let player, let indexPath else { return }
         
@@ -80,6 +72,14 @@ class GameTableViewController: UITableViewController, PlayerTableViewCellDelegat
         tableView.reloadData()
 
     }
+    
+    
+    @IBSegueAction func editGameSegue(_ coder: NSCoder) -> AddEditGameViewController? {
+        guard let viewController = AddEditGameViewController(game: game, coder: coder) else { return nil }
+        viewController.navigationItem.title = "Editing \(game.title)"
+        return viewController
+    }
+    
     
     @IBAction func unwindToScoreboardTableViewController(segue: UIStoryboardSegue) {
         if segue.identifier == "cancelUnwind", let selectedIndexPath = tableView.indexPathForSelectedRow {
@@ -104,5 +104,7 @@ class GameTableViewController: UITableViewController, PlayerTableViewCellDelegat
         
         tableView.reloadData()
     }
+    
+    
 
 }

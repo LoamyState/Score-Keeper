@@ -8,7 +8,9 @@
 import Foundation
 
 
-struct Game: Codable {
+struct Game: Codable, Equatable {
+    
+    var id = UUID()
     var title: String
     var sort: SortOrder
     var winnerSort: SortOrder
@@ -24,25 +26,31 @@ struct Game: Codable {
     }
     var players: [Player]
     
+    static func ==(lhs: Game, rhs: Game) -> Bool {
+        lhs.id == rhs.id
+    }
+    
     static let archiveURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent("game").appendingPathExtension(".plist")
     
-    static func saveToFile(game: Game) {
+    static func saveToFile(games: [Game]) {
         let propertyListEncoder = PropertyListEncoder()
-        let encodedScoreboard = try? propertyListEncoder.encode(game)
+        let encodedScoreboard = try? propertyListEncoder.encode(games)
             
         do {
             try encodedScoreboard?.write(to: Game.archiveURL, options: .noFileProtection)
+            print("Game saved!")
         } catch {
             print(error)
         }
     }
     
-    static func loadFromFile() -> Game? {
-        guard let retrievedScoreboardData = try? Data(contentsOf: Game.archiveURL) else { return nil }
+    static func loadFromFile() -> [Game]? {
+        guard let retrievedScoreboardData = try? Data(contentsOf: Game.archiveURL) else { return [] }
         
         let propertyListDecoder = PropertyListDecoder()
-        guard let decodedScoreboard = try? propertyListDecoder.decode(Game.self, from: retrievedScoreboardData) else { return nil }
+        guard let decodedScoreboard = try? propertyListDecoder.decode(Array<Game>.self, from: retrievedScoreboardData) else { return nil }
         
+        print("Loaded games!")
         return decodedScoreboard
     }
 }
